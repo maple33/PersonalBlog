@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PersonalBlog.Models;
+using PersonalBlog.BusinessManager.Interfaces;
+using PersonalBlog.BusinessManager;
 
 namespace PersonalBlog
 {
@@ -35,6 +37,8 @@ namespace PersonalBlog
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
+            services.AddScoped<IBlogBusinessManager, BlogBusinessManager>();
+            services.AddScoped<IBlogService, BlogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

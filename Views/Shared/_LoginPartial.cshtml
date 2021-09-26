@@ -6,7 +6,7 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a  class="nav-link px-lg-3 py-3 py-lg-4" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @((await UserManager.GetUserAsync(User)).firstName)!</a>
+        <a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Admin" asp-action="Index" title="Manage">Hello @((await UserManager.GetUserAsync(User)).firstName)!</a>
     </li>
     <li class="nav-item">
         <a class="nav-link px-lg-3 py-3 py-lg-4" onclick="$('#LogoutForm').submit()" style="cursor : pointer">Logout</a>
@@ -24,3 +24,4 @@ else
     </li>
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+@*asp-area="Identity" asp-page="/Account/Manage/Index"*@
