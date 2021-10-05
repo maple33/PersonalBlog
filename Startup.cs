@@ -15,6 +15,10 @@ using Microsoft.Extensions.Hosting;
 using PersonalBlog.Models;
 using PersonalBlog.BusinessManager.Interfaces;
 using PersonalBlog.BusinessManager;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Authorization;
+using PersonalBlog.Authorization;
 
 namespace PersonalBlog
 {
@@ -39,6 +43,9 @@ namespace PersonalBlog
             services.AddRazorPages();
             services.AddScoped<IBlogBusinessManager, BlogBusinessManager>();
             services.AddScoped<IBlogService, BlogService>();
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+            services.AddScoped<IAdminBusinessManager, AdminBusinessManager>();
+            services.AddTransient<IAuthorizationHandler, BlogAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

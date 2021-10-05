@@ -22,13 +22,32 @@ namespace PersonalBlog.Controllers
 
         public IActionResult Create()
         {
-            return View(new CreateBlogViewModel());
+            return View(new CreateViewModel());
+        }
+        public async Task<IActionResult> Edit(int? id)
+        {
+            var actionResult = await blogBusinessManager.GetEditViewModel(id, User);
+
+            if (actionResult is null)
+                return View(actionResult.Value);
+
+            return actionResult.Result;
         }
         [HttpPost]
-        public async Task<IActionResult> Add(CreateBlogViewModel createBlogViewModel)
+        public async Task<IActionResult> Add(CreateViewModel createBlogViewModel)
         {
             await blogBusinessManager.CreateBlogAsync(createBlogViewModel, User);
             return RedirectToAction("Create", createBlogViewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Update(EditViewModel editViewModel)
+        {
+            var actionResult = await blogBusinessManager.UpdateBlog(editViewModel, User);
+
+            if (actionResult.Result is null)
+                return RedirectToAction("Edit", new { editViewModel.Post.Id });
+
+            return actionResult.Result;
         }
     }
 }

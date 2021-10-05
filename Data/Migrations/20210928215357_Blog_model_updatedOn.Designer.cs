@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PersonalBlog.Data;
 
 namespace PersonalBlog.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210928215357_Blog_model_updatedOn")]
+    partial class Blog_model_updatedOn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,40 +227,7 @@ namespace PersonalBlog.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("PersonalBlog.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PosterId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("PosterId");
-
-                    b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("PersonalBlog.Models.Post", b =>
+            modelBuilder.Entity("PersonalBlog.Models.Blog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -296,6 +265,39 @@ namespace PersonalBlog.Data.Migrations
                     b.HasIndex("CreatorId");
 
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("PersonalBlog.Models.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("BlogId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PosterId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("PosterId");
+
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -349,22 +351,7 @@ namespace PersonalBlog.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PersonalBlog.Models.Comment", b =>
-                {
-                    b.HasOne("PersonalBlog.Models.Comment", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
-
-                    b.HasOne("PersonalBlog.Models.Post", "Post")
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId");
-
-                    b.HasOne("PersonalBlog.Models.ApplicationUser", "Poster")
-                        .WithMany()
-                        .HasForeignKey("PosterId");
-                });
-
-            modelBuilder.Entity("PersonalBlog.Models.Post", b =>
+            modelBuilder.Entity("PersonalBlog.Models.Blog", b =>
                 {
                     b.HasOne("PersonalBlog.Models.ApplicationUser", "Approver")
                         .WithMany()
@@ -373,6 +360,21 @@ namespace PersonalBlog.Data.Migrations
                     b.HasOne("PersonalBlog.Models.ApplicationUser", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId");
+                });
+
+            modelBuilder.Entity("PersonalBlog.Models.Post", b =>
+                {
+                    b.HasOne("PersonalBlog.Models.Blog", "Blog")
+                        .WithMany("Posts")
+                        .HasForeignKey("BlogId");
+
+                    b.HasOne("PersonalBlog.Models.Post", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("PersonalBlog.Models.ApplicationUser", "Poster")
+                        .WithMany()
+                        .HasForeignKey("PosterId");
                 });
 #pragma warning restore 612, 618
         }

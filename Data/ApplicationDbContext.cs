@@ -17,7 +17,7 @@ namespace PersonalBlog.Data
             : base(options)
         {
         }
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Post> Blogs { get; set; }
+        public DbSet<Comment> Posts { get; set; }
     }
 }

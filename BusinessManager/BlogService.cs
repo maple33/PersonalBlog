@@ -1,4 +1,5 @@
-﻿using PersonalBlog.BusinessManager.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using PersonalBlog.BusinessManager.Interfaces;
 using PersonalBlog.Data;
 using PersonalBlog.Models;
 using System;
@@ -15,11 +16,40 @@ namespace PersonalBlog.BusinessManager
         {
             this._context = _context;
         }
-        public async Task<Blog> Add(Blog blog)
+        public async Task<Post> Add(Post post)
         {
-            _context.Add(blog);
+            _context.Add(post);
             await _context.SaveChangesAsync();
-            return blog;
+            return post;
+        }
+
+        public async Task<Post> Update(Post post)
+        {
+            _context.Update(post);
+            await _context.SaveChangesAsync();
+            return post;
+        }
+        public IEnumerable<Post> GetBlogs(string searchString)
+        {
+            return _context.Blogs
+                .OrderByDescending(post => post.UpdatedOn)
+                .Include(post => post.Creator)
+                .Include(post => post.Comments)
+                .Where(post => post.Title.Contains(searchString) || post.Content.Contains(searchString));
+        }
+
+        public IEnumerable<Post> GetBlogs(ApplicationUser applicationUser)
+        {
+            return _context.Blogs
+                .Include(post => post.Creator)
+                .Include(post => post.Approver)
+                .Include(post => post.Approver)
+                .Where(post => post.Creator == applicationUser);
+        }
+
+        public Post GetBlog(int postId)
+        {
+            return _context.Blogs.FirstOrDefault(post => post.Id == postId);
         }
     }
 }

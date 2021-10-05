@@ -8,6 +8,10 @@ namespace PersonalBlog.BusinessManager.Interfaces
 {
     public interface IBlogService
     {
-        Task<Blog> Add(Blog blog);
+        Task<Post> Add(Post post);
+        IEnumerable<Post> GetBlogs(ApplicationUser applicationUser);
+        Post GetBlog(int postId);
+        Task<Post> Update(Post post);
+        IEnumerable<Post> GetBlogs(string searchString);
     }
 }

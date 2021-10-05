@@ -1,10 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using PagedList.Core;
+using PersonalBlog.Authorization;
 using PersonalBlog.BusinessManager.Interfaces;
 using PersonalBlog.Data;
 using PersonalBlog.Models;
 using PersonalBlog.ViewModels;
+using PersonalBlog.ViewModels.HomeViewModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -15,19 +22,134 @@ namespace PersonalBlog.BusinessManager
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IBlogService blogService;
-        public BlogBusinessManager(UserManager<ApplicationUser> userManager, IBlogService blogService)
+        private readonly IWebHostEnvironment webHostEnviroment;
+        private readonly IAuthorizationService authorizationService;
+
+
+        public BlogBusinessManager(UserManager<ApplicationUser> userManager, IBlogService blogService, 
+            IWebHostEnvironment webHostEnvironment, IAuthorizationService authorizationService)
         {
             this.userManager = userManager;
             this.blogService = blogService;
+            this.webHostEnviroment = webHostEnvironment;
+            this.authorizationService = authorizationService;
         }
-        public async Task<Blog> CreateBlogAsync(CreateBlogViewModel createBlogViewModel, ClaimsPrincipal claimsPrincipal)
+
+
+
+        public async Task<Post> CreateBlogAsync(CreateViewModel createViewModel, ClaimsPrincipal claimsPrincipal)
         {
-            Blog blog = createBlogViewModel.Blog;
-            blog.Creator = await userManager.GetUserAsync(claimsPrincipal);
-            blog.CreatedOn = DateTime.Now;
+            Post post = createViewModel.Post;
+            post.Creator = await userManager.GetUserAsync(claimsPrincipal);
+            post.CreatedOn = DateTime.Now;
+            post.UpdatedOn = DateTime.Now;
 
-            return await blogService.Add(blog);
+            post = await blogService.Add(post);
 
+            string webRootPath = webHostEnviroment.WebRootPath;
+            string pathToImage = $@"{webRootPath}\UserFiles\Blogs\{post.Id}\HeaderImage.jpg";
+            EnsureFolder(pathToImage);
+
+            using (var fileStream = new FileStream(pathToImage, FileMode.Create))
+            {
+                await createViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+            }
+
+                return post;
+        }
+
+
+
+        public async Task<ActionResult<EditViewModel>> GetEditViewModel(int? id, ClaimsPrincipal claimsPrincipal)
+        {
+            if (id is null)
+                return new BadRequestResult();
+
+            var postId = id.Value;
+            var post = blogService.GetBlog(postId);
+            if (post is null)
+                return new NotFoundResult();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Update);
+            if (!authorizationResult.Succeeded)
+                return DetermineActionResult(claimsPrincipal);
+            
+            return new EditViewModel
+            {
+                Post = post
+            };
+
+        }
+
+
+        public IndexViewModel GetIndexViewModel(string searchString, int? page)
+        {
+            int pageSize = 20;
+            int pageNumber = page ?? 1;
+            var posts = blogService.GetBlogs(searchString ?? string.Empty)
+                .Where(post => post.Published);
+
+            return new IndexViewModel
+            {
+                Posts = new StaticPagedList<Post>(posts.Skip((pageNumber - 1) * pageSize).Take(pageSize), pageNumber, pageSize, posts.Count()),
+                SearchString = searchString,
+                PageNumber = pageNumber
+            };
+        }
+
+
+        public async Task<ActionResult<EditViewModel>> UpdateBlog(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal)
+        {
+            var post = blogService.GetBlog(editViewModel.Post.Id);
+            if (post is null)
+                return new NotFoundResult();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Update);
+            if (!authorizationResult.Succeeded)
+                return DetermineActionResult(claimsPrincipal);
+
+            post.Published = editViewModel.Post.Published;
+            post.Title = editViewModel.Post.Title;
+            post.Content = editViewModel.Post.Content;
+            post.UpdatedOn = DateTime.Now;
+
+            if (editViewModel.BlogHeaderImage != null)
+            {
+                string webRootPath = webHostEnviroment.WebRootPath;
+                string pathToImage = $@"{webRootPath}\UserFiles\Blogs\{post.Id}\HeaderImage.jpg";
+                EnsureFolder(pathToImage);
+
+                using (var fileStream = new FileStream(pathToImage, FileMode.Create))
+                {
+                    await editViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+                }
+            }
+
+            return new EditViewModel
+            {
+                Post = await blogService.Update(post)
+            };
+        }
+
+
+
+        private ActionResult DetermineActionResult(ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal.Identity.IsAuthenticated)
+                return new ForbidResult();
+            else
+                return new ChallengeResult();
+        }
+
+
+
+        private void EnsureFolder(string path)
+        {
+            string directoryName = Path.GetDirectoryName(path);
+            if (directoryName.Length > 0)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
         }
     }
 }
