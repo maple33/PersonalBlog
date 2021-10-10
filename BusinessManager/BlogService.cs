@@ -49,7 +49,13 @@ namespace PersonalBlog.BusinessManager
 
         public Post GetBlog(int postId)
         {
-            return _context.Blogs.FirstOrDefault(post => post.Id == postId);
+            return _context.Blogs
+                .Include(post => post.Creator)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Poster)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.Comments)
+                .FirstOrDefault(post => post.Id == postId);
         }
     }
 }

@@ -9,6 +9,7 @@ using PersonalBlog.Data;
 using PersonalBlog.Models;
 using PersonalBlog.ViewModels;
 using PersonalBlog.ViewModels.HomeViewModels;
+using PersonalBlog.ViewModels.PostViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -97,6 +98,27 @@ namespace PersonalBlog.BusinessManager
             };
         }
 
+        public async Task<ActionResult<PostViewModel>> GetPostViewModel(int? id, ClaimsPrincipal claimsPrincipal)
+        {
+            if (id is null)
+                return new BadRequestResult();
+
+            var postId = id.Value;
+            var post = blogService.GetBlog(postId);
+            if (post is null)
+                return new NotFoundResult();
+
+            if (!post.Published)
+            {
+                var authorizationResult = await authorizationService.AuthorizeAsync(claimsPrincipal, post, Operations.Read);
+                if (!authorizationResult.Succeeded)
+                    return DetermineActionResult(claimsPrincipal);
+            }
+            return new PostViewModel
+            {
+                Post = post
+            };
+        }
 
         public async Task<ActionResult<EditViewModel>> UpdateBlog(EditViewModel editViewModel, ClaimsPrincipal claimsPrincipal)
         {

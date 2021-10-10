@@ -24,6 +24,10 @@ namespace PersonalBlog.Authorization
             {
                 context.Succeed(requirement);
             }
+            if (requirement.Name == Operations.Read.Name && !resource.Published && applictionUser == resource.Creator)
+            {
+                context.Succeed(requirement);
+            }
         }
     }
 }
