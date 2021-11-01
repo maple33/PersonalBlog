@@ -154,7 +154,6 @@ namespace PersonalBlog.BusinessManager
         }
 
 
-
         private ActionResult DetermineActionResult(ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal.Identity.IsAuthenticated)
@@ -162,7 +161,6 @@ namespace PersonalBlog.BusinessManager
             else
                 return new ChallengeResult();
         }
-
 
 
         private void EnsureFolder(string path)

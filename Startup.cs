@@ -46,6 +46,8 @@ namespace PersonalBlog
             services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
             services.AddScoped<IAdminBusinessManager, AdminBusinessManager>();
             services.AddTransient<IAuthorizationHandler, BlogAuthorizationHandler>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IHomeBusinessManager, HomeBusinessManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

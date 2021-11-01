@@ -1,10 +1,11 @@
 ﻿@model PersonalBlog.ViewModels.PostViewModels.PostViewModel
 @{
-    Layout = "_ReadLayout";
+    Layout = "_HomeLayout";
     ViewData["HeaderImage"] = $"../../UserFiles/Blogs/{Model.Post.Id}/HeaderImage.jpg";
     ViewData["HeaderTitle"] = Model.Post.Title;
-    ViewData["AuthorName"] = $"{Model.Post.Creator.firstName} {Model.Post.Creator.lastName}";
+    ViewData["AuthorName"] = $"{Model.Post.Creator.FirstName} {Model.Post.Creator.LastName}";
     ViewData["PostDate"] = Model.Post.UpdatedOn.ToString("MMM d, yyyy");
+    ViewData["AuthorID"] = Model.Post.Creator.Id;
 }
 <article>
     <div class="container">
