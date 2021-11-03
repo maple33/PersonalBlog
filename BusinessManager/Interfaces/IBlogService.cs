@@ -13,5 +13,7 @@ namespace PersonalBlog.BusinessManager.Interfaces
         Post GetBlog(int postId);
         Task<Post> Update(Post post);
         IEnumerable<Post> GetBlogs(string searchString);
+        Comment GetComment(int commentId);
+        Task<Comment> Add(Comment comment);
     }
 }

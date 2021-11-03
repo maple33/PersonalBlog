@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalBlog.BusinessManager.Interfaces;
 using PersonalBlog.ViewModels;
+using PersonalBlog.ViewModels.PostViewModels;
 
 namespace PersonalBlog.Controllers
 {
@@ -58,6 +59,17 @@ namespace PersonalBlog.Controllers
 
             if (actionResult.Result is null)
                 return RedirectToAction("Edit", new { editViewModel.Post.Id });
+
+            return actionResult.Result;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Comment(PostViewModel postViewModel)
+        {
+            var actionResult = await blogBusinessManager.CreateComment(postViewModel, User);
+
+            if (actionResult.Result is null)
+                return RedirectToAction("Index", new { postViewModel.Post.Id });
 
             return actionResult.Result;
         }

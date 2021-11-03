@@ -55,7 +55,23 @@ namespace PersonalBlog.BusinessManager
                     .ThenInclude(comment => comment.Poster)
                 .Include(post => post.Comments)
                     .ThenInclude(comment => comment.Comments)
+                        .ThenInclude(reply => reply.Parent)
                 .FirstOrDefault(post => post.Id == postId);
+        }
+
+        public Comment GetComment(int commentId)
+        {
+            return _context.Posts
+                .Include(comment => comment.Poster)
+                .Include(comment => comment.Post)
+                .Include(comment => comment.Parent)
+                .FirstOrDefault(comment => comment.Id == commentId);
+        }
+        public async Task<Comment> Add(Comment comment)
+        {
+            _context.Add(comment);
+            await _context.SaveChangesAsync();
+            return comment;
         }
     }
 }
