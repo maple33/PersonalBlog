@@ -47,16 +47,19 @@ namespace PersonalBlog.BusinessManager
 
             post = await blogService.Add(post);
 
-            string webRootPath = webHostEnviroment.WebRootPath;
-            string pathToImage = $@"{webRootPath}\UserFiles\Blogs\{post.Id}\HeaderImage.jpg";
-            EnsureFolder(pathToImage);
-
-            using (var fileStream = new FileStream(pathToImage, FileMode.Create))
+            if (createViewModel.BlogHeaderImage != null)
             {
-                await createViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+                string webRootPath = webHostEnviroment.WebRootPath;
+                string pathToImage = $@"{webRootPath}\UserFiles\Blogs\{post.Id}\HeaderImage.jpg";
+                EnsureFolder(pathToImage);
+
+                using (var fileStream = new FileStream(pathToImage, FileMode.Create))
+                {
+                    await createViewModel.BlogHeaderImage.CopyToAsync(fileStream);
+                }
             }
 
-                return post;
+            return post;
         }
 
         public async Task<ActionResult<Comment>> CreateComment(PostViewModel postViewModel, ClaimsPrincipal claimsPrincipal)

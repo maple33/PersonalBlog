@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Clean Blog - Start Bootstrap Theme</title>
+    <title>simpleBlog</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <!-- Font Awesome icons (free version)-->
     <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" crossorigin="anonymous"></script>
@@ -27,16 +27,14 @@
                         <h1>@ViewData["HeaderTitle"]</h1>
                         @if (ViewData["SubHeader"] is null)
                         {
-                            <span class="meta">
-                                Posted by
-                                <a asp-controller="Home" asp-action="Author" asp-route-author-id="@ViewData["AuthorId"]">@ViewData["AuthorName"]</a>
-                                on @ViewData["PostDate"]
-                            </span>
-                        }
+            <span class="meta">
+                Posted by
+                <a asp-controller="Home" asp-action="Author" asp-route-author-id="@ViewData["AuthorId"]">@ViewData["AuthorName"]</a>
+                on @ViewData["PostDate"]
+            </span> }
                         else
                         {
-                            <span class="subheading">@ViewData["SubHeader"]</span>
-                        }
+            <span class="subheading">@ViewData["SubHeader"]</span>}
                     </div>
                 </div>
             </div>
@@ -54,3 +52,4 @@
     <script src="~/js/scripts.js"></script>
 </body>
 </html>
+@RenderSection("Scripts", required: false)
